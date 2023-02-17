@@ -1,10 +1,4 @@
-require('dotenv').config({
-    path: "../.env"
-})
-const spreadsheetId = process.env.SPREADSHEET_ID;
-
-//Add function to add headers to the sheet and auto adjust size of columns
-const addHeaders = async (sheets, sheetName) => {
+const addHeaders = async (sheets, spreadsheetId) => {
     const request = {
         spreadsheetId,
         resource: {
@@ -25,7 +19,7 @@ const addHeaders = async (sheets, sheetName) => {
         (await sheets.spreadsheets.batchUpdate(request)).data;
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: `${sheetName}!A1:K1`,
+            range: `Documents!A1:K1`,
             valueInputOption: "USER_ENTERED",
             resource: {
                 values: [
@@ -39,7 +33,7 @@ const addHeaders = async (sheets, sheetName) => {
     }
 }
 
-const resizeColumns = async (sheets) => {
+const resizeColumns = async (sheets, spreadsheetId) => {
     const request = {
         spreadsheetId,
         resource: {
@@ -62,9 +56,9 @@ const resizeColumns = async (sheets) => {
     }
 }
 
-const createSheet = async (sheets, title) => {
+const createSheet = async (sheets, title, spreadsheetId) => {
     sheets.spreadsheets.batchUpdate({
-        spreadsheetId: spreadsheetId,
+        spreadsheetId,
         resource: {
             requests: [{
                 addSheet: {
@@ -78,7 +72,7 @@ const createSheet = async (sheets, title) => {
     return title
 }
 
-const readSheet = async (sheets, sheetName) => {
+const readSheet = async (sheets, sheetName, spreadsheetId) => {
     const ranges = [`${sheetName}!A:H`];
     const {
         data
@@ -102,9 +96,9 @@ const filterRowsLinkedObj = async (rows) => {
     return ops
 }
 
-const writeSheet = async (sheets, title, filteredRows) => {
+const writeSheet = async (sheets, title, filteredRows, spreadsheetId) => {
     await sheets.spreadsheets.values.append({
-        spreadsheetId: spreadsheetId,
+        spreadsheetId,
         range: title,
         valueInputOption: "USER_ENTERED",
         resource: {
@@ -114,30 +108,27 @@ const writeSheet = async (sheets, title, filteredRows) => {
     return
 }
 
-const version2Sheet = async (sheets) => {
-    let sheetName = process.env.SPREADSHEET_NAME;
-    await addHeaders(sheets, sheetName);
-    await resizeColumns(sheets);
-    let title = await createSheet(sheets, "Version 2 Docs")
-    let rows = await readSheet(sheets, sheetName)
+const version2Sheet = async (sheets, spreadsheetId) => {
+    await addHeaders(sheets, spreadsheetId);
+    await resizeColumns(sheets, spreadsheetId);
+    let title = await createSheet(sheets, "Version 2 Docs", spreadsheetId)
+    let rows = await readSheet(sheets, "Documents", spreadsheetId)
     let filteredRows = await filterRows(rows, "Document Version: Editor 2");
-    await writeSheet(sheets, title, filteredRows);
+    await writeSheet(sheets, title, filteredRows, spreadsheetId);
 }
 
-const errorSheet = async (sheets) => {
-    let sheetName = process.env.SPREADSHEET_NAME;
-    let title = await createSheet(sheets, "Error Docs")
-    let rows = await readSheet(sheets, sheetName)
+const errorSheet = async (sheets, spreadsheetId) => {
+    let title = await createSheet(sheets, "Error Docs", spreadsheetId)
+    let rows = await readSheet(sheets, "Documents", spreadsheetId)
     let filteredRows = await filterRows(rows, "Error Message: Please check this docs logs");
-    await writeSheet(sheets, title, filteredRows);
+    await writeSheet(sheets, title, filteredRows, spreadsheetId);
 }
 
-const linkedObjSheet = async (sheets) => {
-    let sheetName = "Version 2 Docs";
-    let title = await createSheet(sheets, "Docs With Linked Objects")
-    let rows = await readSheet(sheets, sheetName)
+const linkedObjSheet = async (sheets, spreadsheetId) => {
+    let title = await createSheet(sheets, "Docs_With_Linked_Objects", spreadsheetId)
+    let rows = await readSheet(sheets, "Version 2 Docs", spreadsheetId)
     let filteredRows = await filterRowsLinkedObj(rows);
-    await writeSheet(sheets, title, filteredRows);
+    await writeSheet(sheets, title, filteredRows, spreadsheetId);
 }
 
 

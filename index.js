@@ -13,8 +13,7 @@ const headers = {
         'Authorization': `Bearer ${access_token}`
     }
 };
-const sheetName = process.env.SPREADSHEET_NAME;
-const spreadsheetId = process.env.SPREADSHEET_ID;
+let spreadsheetId;
 const authorize = require('./Authorization/authorise');
 const {
     version2Sheet,
@@ -80,7 +79,7 @@ const markSheet = async (sheets, docDetail, linked_object) => {
     const resource = {
         values,
     };
-    const range = `${sheetName}!A${counter}`;
+    const range = `Documents!A${counter}`;
     const valueInputOption = 'USER_ENTERED';
     await sheets.spreadsheets.values.update({
         spreadsheetId,
@@ -97,7 +96,7 @@ const markError = async (sheets, url) => {
     const resource = {
         values,
     };
-    const range = `${sheetName}!A${counter}`;
+    const range = `Documents!A${counter}`;
     const valueInputOption = 'USER_ENTERED';
     await sheets.spreadsheets.values.update({
         spreadsheetId,
@@ -113,7 +112,8 @@ const count = async () => {
 };
 
 const pandaScript = async () => {
-    await preScriptOrganise();
+    spreadsheetId = await preScriptOrganise();
+    console.log(spreadsheetId)
 
     while (shouldKeepRunning()) {
         await listDocuments();
@@ -128,14 +128,15 @@ const shouldKeepRunning = () => {
 
 const preScriptOrganise = async () => {
     const sheets = await sheetAuth();
-    await organise(sheets);
+    let id = await organise(sheets);
+    return id;
 }
 
 const postScriptOrganise = async () => {
     const sheets = await sheetAuth();
-    await version2Sheet(sheets);
-    await errorSheet(sheets);
-    await linkedObjSheet(sheets);
+    await version2Sheet(sheets, spreadsheetId);
+    await errorSheet(sheets, spreadsheetId);
+    await linkedObjSheet(sheets, spreadsheetId);
 }
 
 pandaScript();
