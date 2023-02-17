@@ -61,7 +61,7 @@ const eachDoc = async (docs) => {
 
 const sheetAuth = async () => {
     const content = fs.readFileSync('./Credentials/credentials.json');
-    const auth = await authorize(JSON.parse(content), './Credentials/token.json');
+    const auth = await authorize(JSON.parse(content), './Credentials/token.json', './Credentials/refresh.json');
     const sheets = google.sheets({
         version: 'v4',
         auth
@@ -113,7 +113,6 @@ const count = async () => {
 
 const pandaScript = async () => {
     spreadsheetId = await preScriptOrganise();
-    console.log(spreadsheetId)
 
     while (shouldKeepRunning()) {
         await listDocuments();

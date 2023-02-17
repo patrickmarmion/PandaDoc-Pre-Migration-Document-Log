@@ -1,11 +1,11 @@
-const addHeaders = async (sheets, spreadsheetId) => {
+const addHeaders = async (sheets, spreadsheetId, sheetId) => {
     const request = {
         spreadsheetId,
         resource: {
             requests: [{
                 "insertDimension": {
                     "range": {
-                        "sheetId": "0",
+                        "sheetId": sheetId,
                         "dimension": "ROWS",
                         "startIndex": 0,
                         "endIndex": 1
@@ -33,14 +33,14 @@ const addHeaders = async (sheets, spreadsheetId) => {
     }
 }
 
-const resizeColumns = async (sheets, spreadsheetId) => {
+const resizeColumns = async (sheets, spreadsheetId, sheetId) => {
     const request = {
         spreadsheetId,
         resource: {
             requests: [{
                 "autoResizeDimensions": {
                     "dimensions": {
-                        "sheetId": "0",
+                        "sheetId": sheetId,
                         "dimension": "COLUMNS",
                         "startIndex": 0,
                         "endIndex": 7
@@ -57,7 +57,7 @@ const resizeColumns = async (sheets, spreadsheetId) => {
 }
 
 const createSheet = async (sheets, title, spreadsheetId) => {
-    sheets.spreadsheets.batchUpdate({
+    let newSheet = await sheets.spreadsheets.batchUpdate({
         spreadsheetId,
         resource: {
             requests: [{
@@ -69,7 +69,8 @@ const createSheet = async (sheets, title, spreadsheetId) => {
             }]
         }
     })
-    return title
+    let sheetId = newSheet.data.replies[0].addSheet.properties.sheetId;
+    return {title, sheetId}
 }
 
 const readSheet = async (sheets, sheetName, spreadsheetId) => {
@@ -109,26 +110,30 @@ const writeSheet = async (sheets, title, filteredRows, spreadsheetId) => {
 }
 
 const version2Sheet = async (sheets, spreadsheetId) => {
-    await addHeaders(sheets, spreadsheetId);
-    await resizeColumns(sheets, spreadsheetId);
-    let title = await createSheet(sheets, "Version 2 Docs", spreadsheetId)
+    await addHeaders(sheets, spreadsheetId, "0");
+    await resizeColumns(sheets, spreadsheetId, "0");
+    let { title, sheetId } = await createSheet(sheets, "Version 2 Docs", spreadsheetId)
     let rows = await readSheet(sheets, "Documents", spreadsheetId)
     let filteredRows = await filterRows(rows, "Document Version: Editor 2");
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
+    await addHeaders(sheets, spreadsheetId, sheetId);
+    await resizeColumns(sheets, spreadsheetId, sheetId);
 }
 
 const errorSheet = async (sheets, spreadsheetId) => {
-    let title = await createSheet(sheets, "Error Docs", spreadsheetId)
+    let { title } = await createSheet(sheets, "Error Docs", spreadsheetId)
     let rows = await readSheet(sheets, "Documents", spreadsheetId)
     let filteredRows = await filterRows(rows, "Error Message: Please check this docs logs");
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
 }
 
 const linkedObjSheet = async (sheets, spreadsheetId) => {
-    let title = await createSheet(sheets, "Docs_With_Linked_Objects", spreadsheetId)
+    let { title, sheetId } = await createSheet(sheets, "Docs_With_Linked_Objects", spreadsheetId)
     let rows = await readSheet(sheets, "Version 2 Docs", spreadsheetId)
     let filteredRows = await filterRowsLinkedObj(rows);
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
+    await addHeaders(sheets, spreadsheetId, sheetId);
+    await resizeColumns(sheets, spreadsheetId, sheetId);
 }
 
 
