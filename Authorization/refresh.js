@@ -1,7 +1,5 @@
 const fs = require('fs');
 const axiosInstance = require("../Config/axiosInstance");
-
-
 const credentialsPath = '../Credentials/credentials.json';
 const refreshPath = '../Credentials/refresh.json';
 const tokenPath = '../Credentials/token.json';
