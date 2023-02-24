@@ -3,9 +3,9 @@ const {
     google
 } = require('googleapis');
 const readline = require('readline-promise').default;
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+const scope = ['https://www.googleapis.com/auth/spreadsheets'];
 
-const authorize = async (credentials, TOKEN_PATH, REFRESH_TOKEN_PATH) => {
+const authorize = async (credentials, tokenPath, refreshTokenPath) => {
     const {
         client_secret,
         client_id,
@@ -16,19 +16,19 @@ const authorize = async (credentials, TOKEN_PATH, REFRESH_TOKEN_PATH) => {
     );
 
     try {
-        const token = fs.readFileSync(TOKEN_PATH);
+        const token = fs.readFileSync(tokenPath);
         oAuth2Client.setCredentials(JSON.parse(token));
         return oAuth2Client;
     } catch (err) {
-        const authorizedClient = await getNewToken(oAuth2Client, TOKEN_PATH, REFRESH_TOKEN_PATH);
+        const authorizedClient = await getNewToken(oAuth2Client, tokenPath, refreshTokenPath);
         return authorizedClient;
     }
 };
 
-const getNewToken = async (oAuth2Client, TOKEN_PATH, REFRESH_TOKEN_PATH) => {
+const getNewToken = async (oAuth2Client, tokenPath, refreshTokenPath) => {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
-        scope: SCOPES,
+        scope,
     });
     console.log('Authorize this app by visiting this url:', authUrl);
     const rl = readline.createInterface({
@@ -46,9 +46,10 @@ const getNewToken = async (oAuth2Client, TOKEN_PATH, REFRESH_TOKEN_PATH) => {
         refresh_token: tokens.refresh_token,
         forceRefreshOnFailure: true
     });
-    fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
-    fs.writeFileSync(REFRESH_TOKEN_PATH, JSON.stringify(tokens));
-    console.log('Token stored to', TOKEN_PATH);
+    fs.writeFileSync(tokenPath, JSON.stringify(tokens));
+    fs.writeFileSync(refreshTokenPath, JSON.stringify(tokens));
+    console.log('Token stored to', tokenPath);
+    return oAuth2Client
 };
 
 module.exports = authorize;

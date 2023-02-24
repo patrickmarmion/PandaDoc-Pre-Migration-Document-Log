@@ -136,10 +136,10 @@ const linkedObjSheet = async (sheets, spreadsheetId) => {
     await resizeColumns(sheets, spreadsheetId, sheetId);
 }
 
-
-
-module.exports = {
-    version2Sheet,
-    errorSheet,
-    linkedObjSheet
+const sortCompletedSheet = async (sheets, spreadsheetId) => {
+    await version2Sheet(sheets, spreadsheetId);
+    await errorSheet(sheets, spreadsheetId);
+    await linkedObjSheet(sheets, spreadsheetId);
 }
+
+module.exports = sortCompletedSheet;
