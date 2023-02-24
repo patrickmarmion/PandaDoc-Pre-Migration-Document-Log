@@ -20,6 +20,11 @@ let spreadsheetId;
 let counter = 1;
 let page = 1;
 
+/**
+ * Start of the script, through the preScriptOrganise function it gets the spreadsheetId of the newly created spreadsheet
+ * While the shouldKeepRunning fucntion returns results, it passes that array into the eachDoc function
+ * After the List Document endpoint has returned every page of results it calls the postScriptOrganise function to format and filter the Google Sheet
+ */
 const pandaScript = async () => {
     spreadsheetId = await preScriptOrganise();
 
@@ -29,9 +34,14 @@ const pandaScript = async () => {
         await eachDoc(docs, sheets);
         console.log(counter);
     }
-    console.log("END")
     await postScriptOrganise();
 };
+
+const preScriptOrganise = async () => {
+    const sheets = await sheetAuth();
+    let id = await organise(sheets);
+    return id;
+}
 
 const sheetAuth = async () => {
     const content = fs.readFileSync('./Credentials/credentials.json');
@@ -43,12 +53,12 @@ const sheetAuth = async () => {
     return sheets
 };
 
-const preScriptOrganise = async () => {
-    const sheets = await sheetAuth();
-    let id = await organise(sheets);
-    return id;
-}
-
+/**
+ * Retrieves each document's details 
+ * Adds a row to the Google Sheet with the details of the document or details of the error message.
+ * @param {Array} docs The results array from the List Document Endpoint 
+ * @param {Object} sheets Google Authentication
+ */
 const eachDoc = async (docs, sheets) => {
     const markAndCount = async (sheets, data, linkedObject) => {
         await markSheet(sheets, data, linkedObject);
