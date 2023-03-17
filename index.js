@@ -8,6 +8,7 @@ const fs = require('fs');
 const authorize = require('./Authorization/authorise');
 const sortCompletedSheet = require('./Controllers/sortCompletedSheet');
 const organise = require('./Controllers/organiseNewSheet');
+const setCredentials = require('./Authorization/setCredentials')
 const accessToken = process.env.PANDADOC_ACCESS_TOKEN;
 const axiosInstance = require("./Config/axiosInstance");
 const headers = {
@@ -26,6 +27,7 @@ let page = 1;
  * After the List Document endpoint has returned every page of results it calls the postScriptOrganise function to format and filter the Google Sheet
  */
 const pandaScript = async () => {
+    await setCredentials();
     spreadsheetId = await preScriptOrganise();
 
     while (true) {
