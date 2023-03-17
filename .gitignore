@@ -3,3 +3,5 @@
 /Credentials/refresh.json
 /Credentials/token.json
 /Credentials/credentials.json
+# dependencies
+/node_modules

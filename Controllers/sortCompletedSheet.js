@@ -1,4 +1,4 @@
-const addHeaders = async (sheets, spreadsheetId, sheetId) => {
+const addHeaders = async (sheets, spreadsheetId, sheetId, title) => {
     const request = {
         spreadsheetId,
         resource: {
@@ -19,7 +19,7 @@ const addHeaders = async (sheets, spreadsheetId, sheetId) => {
         (await sheets.spreadsheets.batchUpdate(request)).data;
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: `Documents!A1:K1`,
+            range: `${title}!A1:K1`,
             valueInputOption: "USER_ENTERED",
             resource: {
                 values: [
@@ -110,13 +110,12 @@ const writeSheet = async (sheets, title, filteredRows, spreadsheetId) => {
 }
 
 const version2Sheet = async (sheets, spreadsheetId) => {
-    await addHeaders(sheets, spreadsheetId, "0");
+    await addHeaders(sheets, spreadsheetId, "0", "Documents");
     await resizeColumns(sheets, spreadsheetId, "0");
     let { title, sheetId } = await createSheet(sheets, "Version 2 Docs", spreadsheetId)
     let rows = await readSheet(sheets, "Documents", spreadsheetId)
     let filteredRows = await filterRows(rows, "Document Version: Editor 2");
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
-    await addHeaders(sheets, spreadsheetId, sheetId);
     await resizeColumns(sheets, spreadsheetId, sheetId);
 }
 
@@ -132,7 +131,7 @@ const linkedObjSheet = async (sheets, spreadsheetId) => {
     let rows = await readSheet(sheets, "Version 2 Docs", spreadsheetId)
     let filteredRows = await filterRowsLinkedObj(rows);
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
-    await addHeaders(sheets, spreadsheetId, sheetId);
+    await addHeaders(sheets, spreadsheetId, sheetId, "Docs_With_Linked_Objects");
     await resizeColumns(sheets, spreadsheetId, sheetId);
 }
 

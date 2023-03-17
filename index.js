@@ -127,7 +127,7 @@ const incrementCounter = async () => {
 
 const shouldKeepRunning = async () => {
     const sheets = await sheetAuth();
-    let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created`, headers);
+    let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created&folder_uuid=AWbWCjc9gdia2RvCKmsy7K`, headers);
     console.log("Page Number: " + page)
     page++
     return {
