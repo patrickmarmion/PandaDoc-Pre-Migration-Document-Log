@@ -1,4 +1,6 @@
 const fs = require('fs');
+const { promisify } = require('util');
+const writeFileAsync = promisify(fs.writeFile);
 const {
     google
 } = require('googleapis');
@@ -47,13 +49,13 @@ const getNewToken = async (oAuth2Client, tokenPath, refreshTokenPath) => {
             refresh_token: tokens.refresh_token,
             forceRefreshOnFailure: true
         });
-        fs.writeFileSync(tokenPath, JSON.stringify(tokens));
-        fs.writeFileSync(refreshTokenPath, JSON.stringify(tokens));
+        await writeFileAsync(tokenPath, JSON.stringify(tokens));
+        await writeFileAsync(refreshTokenPath, JSON.stringify(tokens));
         console.log('Token stored to', tokenPath);
         return oAuth2Client
     } catch (error) {
-        console.log("Hiiii")
         console.log(error)
+        process.exit()
     }
 };
 

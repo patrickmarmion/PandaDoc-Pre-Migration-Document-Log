@@ -1,6 +1,6 @@
 const readline = require('readline-promise').default;
 
-const organise = async (sheets) => {
+const setupNewSheet = async (sheets) => {
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
@@ -9,7 +9,7 @@ const organise = async (sheets) => {
     const customerName = await rl.questionAsync('Enter Customer Name here please: ');
     rl.close();
     let spreadsheetId = await createNewSpreadSheet(customerName, sheets);
-    await createSheetRows(spreadsheetId, sheets);
+    await createSheetRows(spreadsheetId, sheets, 8000);
     await reNameSheet(spreadsheetId, sheets);
     return spreadsheetId
 }
@@ -30,7 +30,7 @@ const createNewSpreadSheet = async (customerName, sheets) => {
         throw err;
     }
 };
-const createSheetRows = async (spreadsheetId, sheets) => {
+const createSheetRows = async (spreadsheetId, sheets, numRows) => {
     const request = {
         spreadsheetId,
         resource: {
@@ -38,18 +38,17 @@ const createSheetRows = async (spreadsheetId, sheets) => {
                 "appendDimension": {
                     "sheetId": "0",
                     "dimension": "ROWS",
-                    "length": 25000
+                    "length": numRows
                 }
             }],
         }
     };
     try {
         (await sheets.spreadsheets.batchUpdate(request)).data;
-        console.log("25000 rows added");
     } catch (err) {
         console.error(err);
     }
-}
+};
 const reNameSheet = async (spreadsheetId, sheets) => {
     const requests = [
         {
@@ -68,6 +67,9 @@ const reNameSheet = async (spreadsheetId, sheets) => {
          requests,
         },
        });
-}
+};
 
-module.exports = organise;
+module.exports = {
+    setupNewSheet: setupNewSheet,
+    createSheetRows: createSheetRows
+}
