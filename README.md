@@ -1,6 +1,6 @@
-# Workspace Document Log
+# Log All Document's with a Linked Object to a Google Sheet
 
-This repo exports information from every document in a PandaDoc workspace to a Google Sheet.
+This repo exports basic information from every document in a PandaDoc workspace to a Google Sheet, including producing a sheet only with documents that have a linked object and includingg the details of the linked object.
 
 ## Prerequisites:
 
