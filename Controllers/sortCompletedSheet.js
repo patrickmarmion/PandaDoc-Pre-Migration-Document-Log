@@ -23,7 +23,7 @@ const addHeaders = async (sheets, spreadsheetId, sheetId, title) => {
             valueInputOption: "USER_ENTERED",
             resource: {
                 values: [
-                    ["Document ID", "Document Name", "Document Create Date", "Document Status", "CRM Provider", "CRM Entity", "Entity ID"]
+                    ["Document ID", "Document Name", "Document Create Date", "Document Status", "CRM Provider", "CRM Entity", "Entity ID", "NEW CRM Provider", "NEW Entity", "NEW Entity ID"]
                 ],
             },
         })
