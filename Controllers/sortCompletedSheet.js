@@ -103,7 +103,7 @@ const writeSheet = async (sheets, title, filteredRows, spreadsheetId) => {
 };
 
 const errorSheet = async (sheets, spreadsheetId) => {
-    let { title } = await createSheet(sheets, "Error Docs", spreadsheetId)
+    let { title } = await createSheet(sheets, "Error_Docs", spreadsheetId)
     let rows = await readSheet(sheets, "Documents", spreadsheetId)
     let filteredRows = await filterRows(rows, "Error Message: Please check this docs logs");
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
