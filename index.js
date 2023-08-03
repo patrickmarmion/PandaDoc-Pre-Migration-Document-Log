@@ -6,7 +6,8 @@ const sortCompletedSheet = require('./Controllers/sortCompletedSheet');
 const { setupNewSheet, createSheetRows } = require('./Controllers/organiseNewSheet');
 const setCredentials = require('./Authorization/setCredentials');
 const status429 = require('./Errors/handler');
-const accessToken = process.env.PANDADOC_ACCESS_TOKEN;
+const accessToken = process.env.PANDADOC_ACCESS_TOKEN ? process.env.PANDADOC_ACCESS_TOKEN : "Please add access token to the .env File";
+const originalCrm = process.env.OLD_CRM ? process.env.OLD_CRM : "Please add the Name of the CRM/Service which the customer is migrating from to the .env File";
 const axiosInstance = require("./Config/axiosInstance");
 const headers = {
     headers: {
@@ -64,17 +65,7 @@ const eachDoc = async (docs, sheets, spreadsheetId, retries = 0) => {
             }
         });
         const responses = await Promise.all(publicAPIRequests);
-        const sheetValues = responses.map(obj => {
-            return [
-                obj.data.id,
-                obj.data.name,
-                obj.data.date_created,
-                obj.data.status,
-                obj.data.linked_objects.length ? obj.data.linked_objects[0].provider : "",
-                obj.data.linked_objects.length ? obj.data.linked_objects[0].entity_type : "",
-                obj.data.linked_objects.length ? obj.data.linked_objects[0].entity_id : ""
-            ];
-        });
+        const sheetValues = originalCrm.toLowerCase().includes("copper") ? await mapResponsesFromDocMetadata(responses) : await mapResponsesWithLinkedObject(responses);
         await markSheet(sheets, sheetValues, spreadsheetId);
     } catch (error) {
         if (retries >= 3) {
@@ -84,6 +75,54 @@ const eachDoc = async (docs, sheets, spreadsheetId, retries = 0) => {
             await status429(error.response.data.detail, retries)
             return await eachDoc(docs, sheets, spreadsheetId, retries + 1);
         }
+    }
+};
+
+const mapResponsesWithLinkedObject = async (responses) => {
+    const sheetValues = responses.map(obj => {
+        return [
+            obj.data.id,
+            obj.data.name,
+            obj.data.date_created,
+            obj.data.status,
+            obj.data.linked_objects.length ? obj.data.linked_objects[0].provider : "",
+            obj.data.linked_objects.length ? obj.data.linked_objects[0].entity_type : "",
+            obj.data.linked_objects.length ? obj.data.linked_objects[0].entity_id : ""
+        ];
+    });
+    return sheetValues 
+};
+
+const mapResponsesFromDocMetadata = async (responses) => {
+    const sheetValues = responses.map(obj => {
+        const result = checkMetadataForDeal(obj.data);
+        return [
+            obj.data.id,
+            obj.data.name,
+            obj.data.date_created,
+            obj.data.status,
+            result.value ? originalCrm : "",
+            result.key ? result.key : "",
+            result.value ? result.value : "" 
+        ];
+    });
+    return sheetValues 
+};
+
+const checkMetadataForDeal = (obj) => {
+    const metadata = obj.metadata;
+    let desiredValue = null;
+    let desiredKey = null;
+    for (const key in metadata) {
+        if (key.includes("deal") || key.includes("opportunity")) {
+            desiredKey = key;
+            desiredValue = metadata[key];
+            break;
+        }
+    }
+    return {
+        value: desiredValue,
+        key: desiredKey
     }
 };
 
