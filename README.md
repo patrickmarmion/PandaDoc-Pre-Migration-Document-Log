@@ -30,12 +30,12 @@ Open _Credentials_ from the console left side menu:
 
 ### Fork & Clone this Repo
 
-[Bring the code](https://docs.github.com/en/get-started/quickstart/fork-a-repo) into the directory that you created earlier
+[Bring the code](https://docs.github.com/en/get-started/quickstart/fork-a-repo) into a directory.
 
 ### NPM Modules
 
 - Install [Node](https://nodejs.org/en/) or make sure that you're running v16+
-- Make a directory where you will store the files and navigate to this directory on your terminal.
+- Navigate to the directory where you cloned the repo on your terminal.
 - In your terminal you can run 'npm install' to create your node_modules folder with all the script dependecies. But below is a list of all the used packages:
 
   - [Dotenv](https://www.npmjs.com/package/dotenv)
@@ -48,7 +48,7 @@ Open _Credentials_ from the console left side menu:
 
 To the root directory you will need to add a .env File. You can copy and paste the contents of the .envSample file and fill in the PandaDoc Access token.
 
-In the Credentials Folder you will need to add 3 files: ‘credentials.json’, ‘refresh.json’, ‘token.json’. Both the refresh.json & the token.json files can be left empty. However, in your credentials.json file you will need to copy and paste the contents of the Google OAuth Client file which you downloaded earlier. There is a credentialsSample.json file so you can check that it is correct, obviously yours will have data.
+In the Credentials Folder you will need to add a file: ‘credentials.json’. Both the refresh.json & the token.json files can be left empty. However, in your locally created credentials.json file you will need to copy and paste the contents of the Google OAuth Client file which you downloaded earlier. There is a credentialsSample.json file so you can check that it is correct, obviously yours will have data.
 
 ## Run the Script
 
