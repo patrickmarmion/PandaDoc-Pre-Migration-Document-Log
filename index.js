@@ -1,7 +1,7 @@
 require('dotenv').config({
     path: "./.env"
 });
-const sheetAuth = require('./Authorization/sheetAuth')
+const sheetAuth = require('./Authorization/sheetAuth');
 const sortCompletedSheet = require('./Controllers/sortCompletedSheet');
 const { setupNewSheet, createSheetRows } = require('./Controllers/organiseNewSheet');
 const setCredentials = require('./Authorization/setCredentials');

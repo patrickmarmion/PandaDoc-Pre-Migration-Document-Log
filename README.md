@@ -28,20 +28,21 @@ Open _Credentials_ from the console left side menu:
 - Add an authorised redirect URI as: 'http://localhost' and create the Credentials.
 - After being redirected, download the JSON file of your OAuth client.
 
+### Fork & Clone this Repo
+
+[Bring the code](https://docs.github.com/en/get-started/quickstart/fork-a-repo) into the directory that you created earlier
+
 ### NPM Modules
 
 - Install [Node](https://nodejs.org/en/) or make sure that you're running v16+
 - Make a directory where you will store the files and navigate to this directory on your terminal.
-- Install the following NPM Modules:
+- In your terminal you can run 'npm install' to create your node_modules folder with all the script dependecies. But below is a list of all the used packages:
 
   - [Dotenv](https://www.npmjs.com/package/dotenv)
   - [Google APIs](https://www.npmjs.com/package/googleapis)
   - [Axios](https://www.npmjs.com/package/axios)
   - [readline-promise](https://www.npmjs.com/package/readline-promise)
-
-### Fork & Clone this Repo
-
-[Bring the code](https://docs.github.com/en/get-started/quickstart/fork-a-repo) into the directory that you created earlier
+  - [agentkeepalive](https://www.npmjs.com/package/agentkeepalive)
 
 ### Add Files
 
