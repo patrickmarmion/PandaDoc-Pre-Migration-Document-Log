@@ -8,6 +8,7 @@ const setCredentials = require('./Authorization/setCredentials');
 const status429 = require('./Errors/handler');
 const accessToken = process.env.PANDADOC_ACCESS_TOKEN ? process.env.PANDADOC_ACCESS_TOKEN : "Please add access token to the .env File";
 const originalCrm = process.env.OLD_CRM ? process.env.OLD_CRM : "Please add the Name of the CRM/Service which the customer is migrating from to the .env File";
+const crmsUsingMetadata = ["copper", "prosperworks", "freshsales", "insightly", "nutshell"];
 const axiosInstance = require("./Config/axiosInstance");
 const headers = {
     headers: {
@@ -65,7 +66,7 @@ const eachDoc = async (docs, sheets, spreadsheetId, retries = 0) => {
             }
         });
         const responses = await Promise.all(publicAPIRequests);
-        const sheetValues = originalCrm.toLowerCase().includes("copper") ? await mapResponsesFromDocMetadata(responses) : await mapResponsesWithLinkedObject(responses);
+        const sheetValues = crmsUsingMetadata.includes(originalCrm.toLowerCase()) ? await mapResponsesFromDocMetadata(responses) : await mapResponsesWithLinkedObject(responses);
         await markSheet(sheets, sheetValues, spreadsheetId);
     } catch (error) {
         if (retries >= 3) {
