@@ -4,11 +4,10 @@ require('dotenv').config({
 const sheetAuth = require('./Authorization/sheetAuth');
 const sortCompletedSheet = require('./Controllers/sortCompletedSheet');
 const { setupNewSheet, createSheetRows } = require('./Controllers/organiseNewSheet');
-const setCredentials = require('./Authorization/setCredentials');
 const status429 = require('./Errors/handler');
 const accessToken = process.env.PANDADOC_ACCESS_TOKEN ? process.env.PANDADOC_ACCESS_TOKEN : "Please add access token to the .env File";
 const originalCrm = process.env.OLD_CRM ? process.env.OLD_CRM : "Please add the Name of the CRM/Service which the customer is migrating from to the .env File";
-const crmsUsingMetadata = ["copper", "prosperworks", "freshsales", "insightly", "nutshell"];
+const crmObjectType = ["deal", "opportunity", "company", "contact", "account", "person", "organisation", "potential", "lead", "quote", "item", "board", "ticket", "tab", "candidate", "offer", "application"]
 const axiosInstance = require("./Config/axiosInstance");
 const headers = {
     headers: {
@@ -24,7 +23,6 @@ let page = 1;
  * After the List Document endpoint has returned every page of results it calls the postScriptOrganise function to format and filter the Google Sheet
  */
 const pandaScript = async () => {
-    await setCredentials();
     const sheets = await sheetAuth();
     const spreadsheetId = await setupNewSheet(sheets);
 
@@ -66,7 +64,7 @@ const eachDoc = async (docs, sheets, spreadsheetId, retries = 0) => {
             }
         });
         const responses = await Promise.all(publicAPIRequests);
-        const sheetValues = crmsUsingMetadata.includes(originalCrm.toLowerCase()) ? await mapResponsesFromDocMetadata(responses) : await mapResponsesWithLinkedObject(responses);
+        const sheetValues = await processCRMConnection(responses);
         await markSheet(sheets, sheetValues, spreadsheetId);
     } catch (error) {
         if (retries >= 3) {
@@ -79,52 +77,58 @@ const eachDoc = async (docs, sheets, spreadsheetId, retries = 0) => {
     }
 };
 
-const mapResponsesWithLinkedObject = async (responses) => {
-    const sheetValues = responses.map(obj => {
-        return [
-            obj.data.id,
-            obj.data.name,
-            obj.data.date_created,
-            obj.data.status,
-            obj.data.linked_objects.length ? obj.data.linked_objects[0].provider : "",
-            obj.data.linked_objects.length ? obj.data.linked_objects[0].entity_type : "",
-            obj.data.linked_objects.length ? obj.data.linked_objects[0].entity_id : ""
-        ];
+const processCRMConnection = async (responses) => {
+    const sheetValuesPromises = responses.map(async (obj) => {
+        const checkLinkedService = obj.data.linked_objects[0] ? await mapResponsesWithLinkedObject(obj) : await mapResponsesFromDocMetadata(obj);
+        return checkLinkedService;
     });
-    return sheetValues 
+    const sheetValues = await Promise.all(sheetValuesPromises);
+    return sheetValues;
 };
 
-const mapResponsesFromDocMetadata = async (responses) => {
-    const sheetValues = responses.map(obj => {
-        const result = checkMetadataForDeal(obj.data);
-        return [
-            obj.data.id,
-            obj.data.name,
-            obj.data.date_created,
-            obj.data.status,
-            result.value ? originalCrm : "",
-            result.key ? result.key : "",
-            result.value ? result.value : "" 
-        ];
-    });
-    return sheetValues 
-};
-
-const checkMetadataForDeal = (obj) => {
+const containsCrmObjectType = async (obj) => {
     const metadata = obj.metadata;
-    let desiredValue = null;
-    let desiredKey = null;
-    for (const key in metadata) {
-        if (key.includes("deal") || key.includes("opportunity")) {
-            desiredKey = key;
-            desiredValue = metadata[key];
-            break;
+    if (Object.keys(metadata).length !== 0) {
+        for (const key in metadata) {
+            for (const objectType of crmObjectType) {
+                if (key.includes(objectType)) {
+                    return {
+                        key: key,
+                        value: metadata[key]
+                    };
+                }
+            }
         }
     }
     return {
-        value: desiredValue,
-        key: desiredKey
-    }
+        key: "",
+        value: ""
+    }; 
+}
+
+const mapResponsesWithLinkedObject = async (obj) => {
+    return [
+        obj.data.id,
+        obj.data.name,
+        obj.data.date_created,
+        obj.data.status,
+        obj.data.linked_objects[0].provider,
+        obj.data.linked_objects[0].entity_type,
+        obj.data.linked_objects[0].entity_id
+    ];
+};
+
+const mapResponsesFromDocMetadata = async (obj) => {
+    const result = await containsCrmObjectType(obj.data);
+    return [
+        obj.data.id,
+        obj.data.name,
+        obj.data.date_created,
+        obj.data.status,
+        result.value ? originalCrm : "",
+        result.key ? result.key : "",
+        result.value ? result.value : ""
+    ];
 };
 
 const markSheet = async (sheets, values, spreadsheetId) => {
