@@ -1,3 +1,5 @@
+const { createSheetRows } = require('./organiseNewSheet.js');
+
 const addHeaders = async (sheets, spreadsheetId, sheetId, title) => {
     const request = {
         spreadsheetId,
@@ -110,13 +112,14 @@ const errorSheet = async (sheets, spreadsheetId) => {
 };
 
 const linkedObjSheet = async (sheets, spreadsheetId) => {
-    let { title, sheetId } = await createSheet(sheets, "Docs_With_Linked_Objects", spreadsheetId)
-    let rows = await readSheet(sheets, "Documents", spreadsheetId)
-    let filteredRows = rows.filter(e => e.length > 4 && !e.includes("https://api.pandadoc.com/public/v1/documents/") && !e.includes("pandadoc-eform"));
+    const { title, sheetId } = await createSheet(sheets, "Docs_With_Linked_Objects", spreadsheetId);
+    const rows = await readSheet(sheets, "Documents", spreadsheetId);
+    await createSheetRows(spreadsheetId, sheets, rows.length, sheetId);
+    const filteredRows = rows.filter(e => e.length > 4 && !e.includes("https://api.pandadoc.com/public/v1/documents/") && !e.includes("pandadoc-eform"));
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
     await addHeaders(sheets, spreadsheetId, sheetId, "Docs_With_Linked_Objects");
     await resizeColumns(sheets, spreadsheetId, sheetId);
-}
+};
 
 const sortCompletedSheet = async (sheets, spreadsheetId) => {
     await errorSheet(sheets, spreadsheetId);

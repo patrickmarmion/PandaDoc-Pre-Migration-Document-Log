@@ -12,7 +12,7 @@ const setupNewSheet = async (sheets) => {
     await createSheetRows(spreadsheetId, sheets, 8000);
     await reNameSheet(spreadsheetId, sheets);
     return spreadsheetId
-}
+};
 
 const createNewSpreadSheet = async (customerName, sheets) => {
     const resource = {
@@ -30,13 +30,14 @@ const createNewSpreadSheet = async (customerName, sheets) => {
         throw err;
     }
 };
-const createSheetRows = async (spreadsheetId, sheets, numRows) => {
+
+const createSheetRows = async (spreadsheetId, sheets, numRows, sheetId) => {
     const request = {
         spreadsheetId,
         resource: {
             requests: [{
                 "appendDimension": {
-                    "sheetId": "0",
+                    "sheetId": sheetId,
                     "dimension": "ROWS",
                     "length": numRows
                 }
@@ -49,6 +50,7 @@ const createSheetRows = async (spreadsheetId, sheets, numRows) => {
         console.error(err);
     }
 };
+
 const reNameSheet = async (spreadsheetId, sheets) => {
     const requests = [
         {

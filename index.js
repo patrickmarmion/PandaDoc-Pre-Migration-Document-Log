@@ -132,7 +132,7 @@ const mapResponsesFromDocMetadata = async (obj) => {
 };
 
 const markSheet = async (sheets, values, spreadsheetId) => {
-    await createSheetRows(spreadsheetId, sheets, 100);
+    await createSheetRows(spreadsheetId, sheets, 100, "0");
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId,
         range: `Documents!A:A`,
