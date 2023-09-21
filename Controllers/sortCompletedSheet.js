@@ -85,11 +85,6 @@ const readSheet = async (sheets, sheetName, spreadsheetId) => {
     });
     let rows = data.valueRanges[0].values;
     return rows
-}
-
-const filterRows = async (rows, filter) => {
-    let filtRows = rows.filter(k => k.includes(filter));
-    return filtRows
 };
 
 const writeSheet = async (sheets, title, filteredRows, spreadsheetId) => {
@@ -107,7 +102,7 @@ const writeSheet = async (sheets, title, filteredRows, spreadsheetId) => {
 const errorSheet = async (sheets, spreadsheetId) => {
     let { title } = await createSheet(sheets, "Error_Docs", spreadsheetId)
     let rows = await readSheet(sheets, "Documents", spreadsheetId)
-    let filteredRows = await filterRows(rows, "Error Message: Please check this docs logs");
+    const filteredRows = rows.filter(k => k.includes("Error Message: Please check this docs logs"));
     await writeSheet(sheets, title, filteredRows, spreadsheetId);
 };
 

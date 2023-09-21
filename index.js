@@ -9,6 +9,7 @@ const accessToken = process.env.PANDADOC_ACCESS_TOKEN ? process.env.PANDADOC_ACC
 const originalCrm = process.env.OLD_CRM ? process.env.OLD_CRM : "Please add the Name of the CRM/Service which the customer is migrating from to the .env File";
 const crmObjectType = ["deal", "opportunity", "company", "contact", "account", "person", "organisation", "potential", "lead", "quote", "item", "board", "ticket", "tab", "candidate", "offer", "application"]
 const axiosInstance = require("./Config/axiosInstance");
+const statusList = process.env.WORKSPACE_AND_CRM === "true" ? "&status=0&status=2&status=11&status=12" : ""
 const headers = {
     headers: {
         'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ const pandaScript = async () => {
 };
 
 const listDocuments = async () => {
-    let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created`, headers);
+    let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created${statusList}`, headers);
     console.log("Page Number: " + page)
     page++
     return {

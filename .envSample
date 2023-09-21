@@ -3,3 +3,8 @@ PANDADOC_ACCESS_TOKEN=
 
 #CRM Info
 OLD_CRM=
+
+#Are you going to migrate docs to a new workspace & update their CRM Linked Object?
+#The above script is only compatible with certain doc statuses (draft, completed, voided, declined)
+#If not then leave this as false which will return all doc statuses
+WORKSPACE_AND_CRM=false
